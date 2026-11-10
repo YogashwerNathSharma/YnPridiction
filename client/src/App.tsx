@@ -4,8 +4,8 @@ type Report={sampleSize:number;counts:{value:number;count:number;proportion:numb
 const API=import.meta.env.VITE_API_URL||"http://localhost:4000";
 export default function App(){
  const[rows,setRows]=useState<ResultRow[]>([]),[value,setValue]=useState("0"),[period,setPeriod]=useState("1 Minute"),[report,setReport]=useState<Report|null>(null),[status,setStatus]=useState("Connecting to analysis API…"),[error,setError]=useState("");
- async function refresh(){try{const[r,a]=await Promise.all([fetch(API+"/api/results"),fetch(API+"/api/analysis?window=100")]);if(!r.ok||!a.ok)throw new Error("API request failed");const rd=await r.json(),ad=await a.json();setRows(rd.results);setReport(ad);setStatus("Analysis API connected");}catch{setStatus("API offline — start the backend to enable live analysis");}}
- useEffect(()=>{void refresh();},[]);
+ async function refresh(){try{const[r,a]=await Promise.all([fetch(API+"/api/results?period="+encodeURIComponent(period)),fetch(API+"/api/analysis?window=100&period="+encodeURIComponent(period))]);if(!r.ok||!a.ok)throw new Error("API request failed");const rd=await r.json(),ad=await a.json();setRows(rd.results);setReport(ad);setStatus("Analysis API connected");}catch{setStatus("API offline — start the backend to enable live analysis");}}
+ useEffect(()=>{void refresh();},[period]);
  async function addResult(e:React.FormEvent){e.preventDefault();setError("");const n=Number(value);if(!Number.isInteger(n)||n<0||n>9){setError("Enter a whole number from 0 to 9.");return;}try{const r=await fetch(API+"/api/results",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({value:n,period,observedAt:new Date().toISOString()})});if(!r.ok)throw new Error((await r.json()).error||"Could not save result");setValue("0");await refresh();}catch(e){setError(e instanceof Error?e.message:"Could not save result");}}
  async function clearResults(){if(!confirm("Clear all in-memory results?"))return;await fetch(API+"/api/results",{method:"DELETE"});await refresh();}
  const bars=useMemo(()=>report?.counts??Array.from({length:10},(_,value)=>({value,count:0,proportion:0})),[report]);
