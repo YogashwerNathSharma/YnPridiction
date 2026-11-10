@@ -11,7 +11,7 @@ app.use(cors({origin:origins}));
 app.use(express.json({limit:"1mb"}));
 
 app.get("/api/health",(_req,res)=>res.json({status:"ok",service:"YnPrediction API",storage:storageMode()}));
-app.get("/api/results",async(_req,res,next)=>{try{res.json({results:await listResults()});}catch(e){next(e);}});
+app.get("/api/results",async(req,res,next)=>{try{res.json({results:await listResults(10000,req.query.period)});}catch(e){next(e);}});
 app.post("/api/results",async(req,res,next)=>{
  try{
   const input=Array.isArray(req.body)?req.body:[req.body];
@@ -22,7 +22,7 @@ app.post("/api/results",async(req,res,next)=>{
 });
 app.delete("/api/results",async(_req,res,next)=>{try{res.json(await clearResults());}catch(e){next(e);}});
 app.get("/api/analysis",async(req,res,next)=>{
- try{const rows=await listResults();res.json(analyzeResults(rows,req.query.window||100));}catch(e){next(e);}
+ try{const rows=await listResults(10000,req.query.period);res.json(analyzeResults(rows,req.query.window||100));}catch(e){next(e);}
 });
 app.use((err,_req,res,_next)=>{console.error(err);res.status(500).json({error:"Internal server error"});});
 
