@@ -35,7 +35,8 @@ Open http://localhost:5173. API defaults to http://localhost:4000.
 Set `MONGODB_URI` in `server/.env` to a MongoDB connection string to enable persistent result storage. Without it, the API uses temporary in-memory storage and data is lost when the process restarts. Do not commit real credentials. If a configured MongoDB connection drops, the API returns an error rather than silently switching to temporary storage.
 
 ## Current scope
-- Manual result entry (0–9)
+- Manual result entry (0–9), separated by game period
+- Period-specific history and analysis filters
 - Historical frequency chart and ranking
 - Streak and transition analysis
 - Wilson interval for observed frequency
@@ -43,6 +44,6 @@ Set `MONGODB_URI` in `server/.env` to a MongoDB connection string to enable pers
 - API health, result list, add, clear and analysis endpoints
 - Optional MongoDB persistence
 
-Authentication, automated result import, formal Brier-score evaluation, production deployment and full runtime verification are not yet implemented.
+Authentication, automated result import, formal Brier-score evaluation and production deployment are not yet implemented. GitHub Actions CI now runs backend tests and a frontend production build on pushes and pull requests; check the Actions tab for the first run.
 
 See [model evaluation](docs/MODEL_EVALUATION.md) and [methodology](docs/METHODOLOGY.md).
