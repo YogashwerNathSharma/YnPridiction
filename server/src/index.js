@@ -2,26 +2,13 @@ import "dotenv/config";
 import express from "express";
 import cors from "cors";
 import {analyzeResults,validateResults} from "./analysis.js";
-
 const app=express(),PORT=Number(process.env.PORT||4000);
-const allowedOrigins=(process.env.CLIENT_ORIGIN||"http://localhost:5173").split(",").map(x=>x.trim());
+const origins=(process.env.CLIENT_ORIGIN||"http://localhost:5173").split(",").map(x=>x.trim());
 let inMemoryResults=[];
-app.use(cors({origin:allowedOrigins}));
-app.use(express.json({limit:"1mb"}));
-
+app.use(cors({origin:origins}));app.use(express.json({limit:"1mb"}));
 app.get("/api/health",(_req,res)=>res.json({status:"ok",service:"YnPrediction API"}));
 app.get("/api/results",(_req,res)=>res.json({results:inMemoryResults}));
-app.post("/api/results",(req,res)=>{
- try{
-  const input=Array.isArray(req.body)?req.body:[req.body];
-  const incoming=validateResults(input);
-  inMemoryResults=validateResults([...inMemoryResults,...incoming]).slice(-10000);
-  res.status(201).json({added:incoming.length,total:inMemoryResults.length});
- }catch(e){res.status(400).json({error:e.message});}
-});
+app.post("/api/results",(req,res)=>{try{const input=Array.isArray(req.body)?req.body:[req.body];const incoming=validateResults(input);inMemoryResults=validateResults([...inMemoryResults,...incoming]).slice(-10000);res.status(201).json({added:incoming.length,total:inMemoryResults.length});}catch(e){res.status(400).json({error:e.message});}});
 app.delete("/api/results",(_req,res)=>{inMemoryResults=[];res.json({cleared:true});});
-app.get("/api/analysis",(req,res)=>{
- try{res.json(analyzeResults(inMemoryResults,req.query.window||100));}
- catch(e){res.status(400).json({error:e.message});}
-});
+app.get("/api/analysis",(req,res)=>{try{res.json(analyzeResults(inMemoryResults,req.query.window||100));}catch(e){res.status(400).json({error:e.message});}});
 app.listen(PORT,()=>console.log(`YnPrediction API listening on ${PORT}`));
