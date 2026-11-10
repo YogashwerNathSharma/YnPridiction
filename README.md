@@ -1,53 +1,43 @@
 # YnPrediction
 
-A standalone trend-analysis and probability dashboard for studying historical game outcomes.
+A standalone historical trend-analysis dashboard for Sikkim-style 0–9 result histories.
 
-> **Important:** This project is an educational statistical-analysis tool. It does not predict random outcomes with certainty, guarantee wins, or provide betting advice. Historical patterns may not persist.
+> **No guaranteed winning predictions.** The application summarizes historical patterns and backtests simple statistical baselines. It cannot make a genuinely random independent draw predictable.
 
-## Initial stack
-- Frontend: React + TypeScript + Vite
-- Backend: Node.js + Express
-- Analysis: deterministic statistics (frequency, streaks, transitions, rolling windows)
-- Storage: MongoDB integration planned; initial API can run without a database
+## Stack
+- React + TypeScript + Vite
+- Node.js + Express
+- Statistical analysis: frequencies, streaks, transitions, entropy and chronological walk-forward backtest
 
-## Repository layout
-```
-client/       React dashboard
-server/       Express API and analysis engine
-docs/         architecture and methodology
-```
+## Layout
+- `client/` — React dashboard
+- `server/` — Express API and pure analysis engine
+- `docs/` — architecture, methodology and evaluation guidance
 
 ## Run locally
-### API
+Backend:
 ```bash
 cd server
 npm install
 cp .env.example .env
 npm run dev
 ```
-API default: http://localhost:4000
-
-### Frontend
+Frontend in another terminal:
 ```bash
 cd client
 npm install
 npm run dev
 ```
-Frontend default: http://localhost:5173
+Open http://localhost:5173. API defaults to http://localhost:4000.
 
-Set `VITE_API_URL=http://localhost:4000` in `client/.env` if needed.
+## Current scope
+- Manual result entry (0–9)
+- Historical frequency chart and ranking
+- Streak and transition analysis
+- Wilson interval for observed frequency
+- Chronological walk-forward evaluation
+- API health, result list, add, clear and analysis endpoints
 
-## Data
-Enter historical results manually through the dashboard or API. Only use sources you are authorized to access. Do not scrape sites that prohibit automated access.
+**Data note:** The current server stores results in memory. Restarting the server clears them. MongoDB persistence, login, automated result import, formal Brier-score evaluation and production deployment are not yet implemented.
 
-## Analysis methodology
-- Frequency counts and empirical proportions
-- Rolling-window distribution comparisons
-- Current/max streaks
-- First-order transition counts
-- Baseline comparison and out-of-sample accuracy tracking
-
-The dashboard should show sample size and uncertainty. For independent uniform 0–9 outcomes, the baseline probability of each number is 10%; observed frequency differences alone do not prove predictive signal.
-
-## Status
-Starter foundation only. Authentication, persistent database storage, production deployment, automated result ingestion, and formal model validation are not yet implemented.
+See [model evaluation](docs/MODEL_EVALUATION.md) and [methodology](docs/METHODOLOGY.md).
