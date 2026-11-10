@@ -1,16 +1,20 @@
 # Model evaluation roadmap
 
-A frequency leader is not the same as a reliable next-outcome prediction.
+The application currently offers descriptive historical statistics, not a validated next-outcome predictor.
 
-Current analysis provides descriptive counts, proportions, transitions, streaks, entropy, Wilson confidence interval for the observed top-number share, and chronological walk-forward evaluation.
+## Current analysis
+- Frequency and empirical proportions for 0–9.
+- Rolling-window sample.
+- Streak and transition counts.
+- Entropy and Wilson interval for the observed top-number share.
+- Chronological walk-forward evaluation of a simple historical-frequency top pick.
 
-Before claiming predictive value:
-1. Gather a sufficiently large, timestamped result history and deduplicate rounds.
-2. Keep a chronological holdout set that is never used for model tuning.
-3. Compare with a uniform 10%-per-number probability baseline.
+## Before claiming signal
+1. Gather timestamped, complete and deduplicated results.
+2. Keep a chronological holdout set that is never used for tuning.
+3. Compare against a uniform 10%-per-number baseline.
 4. Evaluate log loss and Brier score as well as accuracy.
-5. Report sample size and uncertainty; do not present an estimated ranking as a guaranteed win.
+5. Report sample size and uncertainty.
+6. Require repeatable out-of-sample improvement before describing any model as informative.
 
-Candidate models for later research include rolling-frequency shrinkage, Bayesian categorical models, and transition models only when dependence is demonstrated out of sample.
-
-For a fair independent random game, past results alone do not create a reliable edge.
+A fair independent random game has no reliably inferable winning number from past outcomes alone. No output should be labelled as a guaranteed win.
