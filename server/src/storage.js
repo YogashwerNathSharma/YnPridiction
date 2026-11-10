@@ -10,14 +10,23 @@ const resultSchema=new mongoose.Schema({
 resultSchema.index({roundId:1},{unique:true,sparse:true});
 const Result=mongoose.models.Result||mongoose.model("Result",resultSchema);
 let memoryRows=[];
+let mongoConfigured=false;
 
 export async function connectStorage(uri){
+ mongoConfigured=Boolean(uri);
  if(!uri)return{mode:"memory",connected:false};
  await mongoose.connect(uri,{serverSelectionTimeoutMS:8000});
  return{mode:"mongodb",connected:true};
 }
-export function storageMode(){return mongoose.connection.readyState===1?"mongodb":"memory";}
+export function storageMode(){
+ if(mongoose.connection.readyState===1)return"mongodb";
+ return mongoConfigured?"mongodb-disconnected":"memory";
+}
+function assertStorageAvailable(){
+ if(storageMode()==="mongodb-disconnected")throw new Error("MongoDB connection is unavailable; refusing to switch silently to temporary memory storage.");
+}
 export async function listResults(limit=10000){
+ assertStorageAvailable();
  if(storageMode()==="mongodb"){
   const docs=await Result.find().sort({observedAt:1}).limit(limit).lean();
   return docs.map(({value,period,roundId,observedAt})=>({value,period,roundId,observedAt}));
@@ -25,6 +34,7 @@ export async function listResults(limit=10000){
  return memoryRows.slice(-limit);
 }
 export async function addResults(input){
+ assertStorageAvailable();
  const rows=validateResults(input).map(row=>({...row,observedAt:row.observedAt||new Date()}));
  if(storageMode()==="mongodb"){
   const docs=await Result.insertMany(rows,{ordered:false});
@@ -34,6 +44,7 @@ export async function addResults(input){
  return{added:rows.length,total:memoryRows.length};
 }
 export async function clearResults(){
+ assertStorageAvailable();
  if(storageMode()==="mongodb"){const result=await Result.deleteMany({});return{cleared:true,deleted:result.deletedCount};}
  const deleted=memoryRows.length;memoryRows=[];return{cleared:true,deleted};
 }
