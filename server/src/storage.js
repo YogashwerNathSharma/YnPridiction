@@ -25,13 +25,15 @@ export function storageMode(){
 function assertStorageAvailable(){
  if(storageMode()==="mongodb-disconnected")throw new Error("MongoDB connection is unavailable; refusing to switch silently to temporary memory storage.");
 }
-export async function listResults(limit=10000){
+export async function listResults(limit=10000,period){
  assertStorageAvailable();
+ const filter=period?{period}:{};
  if(storageMode()==="mongodb"){
-  const docs=await Result.find().sort({observedAt:1}).limit(limit).lean();
+  const docs=await Result.find(filter).sort({observedAt:1}).limit(limit).lean();
   return docs.map(({value,period,roundId,observedAt})=>({value,period,roundId,observedAt}));
  }
- return memoryRows.slice(-limit);
+ const filtered=period?memoryRows.filter(row=>(row.period||"1 Minute")===period):memoryRows;
+ return filtered.slice(-limit);
 }
 export async function addResults(input){
  assertStorageAvailable();
